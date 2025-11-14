@@ -255,3 +255,4 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 /.idea/
+node_modules/
