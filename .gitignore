@@ -257,4 +257,8 @@ gradle-app.setting
 /.idea/
 node_modules/
 .next/
-.next/
+
+# Ignore all markdown files except README.md and docs/design/
+*.md
+!README.md
+!docs/design/*.md

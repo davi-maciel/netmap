@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl, { Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import styles from "./page.module.css";
-import { getLocationsWithPeople, people } from "@/data/mockData";
+import { getLocationsWithPeople, people, getPersonById } from "@/data/mockData";
 import SearchBar from "./SearchBar";
+import PersonDetailsCard from "./PersonDetailsCard";
 
 export default function Home() {
   const mapContainerRef = useRef(null);
@@ -13,6 +14,7 @@ export default function Home() {
   const markersRef = useRef({});
   const markerElementsRef = useRef({});
   const [selectedPerson, setSelectedPerson] = useState(null);
+  const [detailedPerson, setDetailedPerson] = useState(null); // For the details card
   const locationsWithPeople = getLocationsWithPeople();
 
   useEffect(() => {
@@ -20,7 +22,7 @@ export default function Home() {
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: "https://demotiles.maplibre.org/style.json",
+      style: "https://tiles.openfreemap.org/styles/bright",
       center: [0, 20],
       zoom: 2,
       attributionControl: false, // Remove attribution control
@@ -28,12 +30,33 @@ export default function Home() {
 
     mapRef.current = map;
 
+    // Customize map style once loaded
+    map.on("style.load", () => {
+      // Hide most labels except for country and state names
+      const layers = map.getStyle().layers;
+      layers.forEach((layer) => {
+        if (layer.type === "symbol") {
+          // Keep country and state/province labels visible
+          if (
+            layer.id.includes("place") ||
+            layer.id.includes("country") ||
+            layer.id.includes("state")
+          ) {
+          } else {
+            // Hide everything else (roads, POIs, etc.)
+            map.setLayoutProperty(layer.id, "visibility", "none");
+          }
+        }
+      });
+    });
+
     // Add navigation controls on the right side instead
-    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     // Clear selection when clicking on the map
-    map.on('click', () => {
+    map.on("click", () => {
       setSelectedPerson(null);
+      setDetailedPerson(null);
     });
 
     // Add markers for each location
@@ -49,23 +72,17 @@ export default function Home() {
       el.style.height = "70px";
       el.dataset.personId = person.id;
 
-      // Create popup with person info
-      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
-        <div style="padding: 10px; min-width: 200px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">
-            ${person.first_name} ${person.last_name}
-          </h3>
-          <p style="margin: 0 0 8px 0; font-size: 14px; color: #666;">
-            📍 ${location.label}
-          </p>
-          <p style="margin: 0; font-size: 13px; color: #888; line-height: 1.4;">
-            ${person.bio}
-          </p>
-        </div>
-      `);
+      // Add click handler to show person details
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Marker clicked for person ID:", person.id);
+        const personWithLocations = getPersonById(person.id);
+        console.log("Person with locations:", personWithLocations);
+        setDetailedPerson(personWithLocations);
+      });
 
-      // Add marker to map with popup
-      const marker = new Marker({ element: el }).setLngLat(lngLat).setPopup(popup).addTo(map);
+      // Add marker to map
+      const marker = new Marker({ element: el }).setLngLat(lngLat).addTo(map);
 
       // Store marker and element references by person and location
       const key = `${person.id}-${location.id}`;
@@ -113,13 +130,6 @@ export default function Home() {
         zoom: 12,
         duration: 2000,
       });
-
-      // Open the popup for this marker
-      const key = `${selectedPerson.id}-${location.id}`;
-      const marker = markersRef.current[key];
-      if (marker) {
-        marker.togglePopup();
-      }
     } else {
       // If person has multiple locations, fit bounds to show all
       const bounds = new maplibregl.LngLatBounds();
@@ -132,6 +142,10 @@ export default function Home() {
         duration: 2000,
       });
     }
+
+    // Update the detailed person card
+    const personWithLocations = getPersonById(selectedPerson.id);
+    setDetailedPerson(personWithLocations);
   }, [selectedPerson]);
 
   return (
@@ -139,6 +153,10 @@ export default function Home() {
       <div ref={mapContainerRef} className={styles.mapContainer} />
       <div className={styles.searchBarOverlay}>
         <SearchBar people={people} onSelectPerson={setSelectedPerson} />
+        <PersonDetailsCard
+          person={detailedPerson}
+          onClose={() => setDetailedPerson(null)}
+        />
       </div>
     </div>
   );

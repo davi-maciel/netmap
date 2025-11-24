@@ -1,2 +1,7 @@
 @import "tailwindcss";
 
+/* Hide the native search cancel button in WebKit browsers */
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}

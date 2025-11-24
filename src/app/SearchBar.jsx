@@ -2,6 +2,14 @@
 
 import React, { useState } from "react";
 
+/**
+ * SearchBar - Soft Glass/Frosted Effect
+ * - Semi-transparent white with backdrop blur
+ * - Modern premium feel that floats above the map
+ * - Larger rounded corners (rounded-xl)
+ * - Smooth transitions
+ */
+
 const SearchBar = ({ people, onSelectPerson }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
@@ -9,9 +17,9 @@ const SearchBar = ({ people, onSelectPerson }) => {
   // Filter people based on search query
   const filteredPeople = searchQuery.trim()
     ? people.filter((person) => {
-        const fullName = `${person.first_name} ${person.last_name}`.toLowerCase();
-        return fullName.includes(searchQuery.toLowerCase());
-      })
+      const fullName = `${person.first_name} ${person.last_name}`.toLowerCase();
+      return fullName.includes(searchQuery.toLowerCase());
+    })
     : [];
 
   const handleInputChange = (e) => {
@@ -47,14 +55,24 @@ const SearchBar = ({ people, onSelectPerson }) => {
       <form className="max-w-md mx-auto" onSubmit={handleSubmit}>
         <label
           htmlFor="default-search"
-          className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+          className="mb-2 text-sm font-medium text-gray-900 sr-only"
         >
           Search
         </label>
         <div className="relative">
-          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+          <input
+            type="search"
+            id="default-search"
+            className="block w-full p-4 ps-16 pr-10 text-sm text-gray-900 border border-white/30 rounded-xl bg-white/80 backdrop-blur-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg hover:bg-white/90"
+            placeholder="Search for people..."
+            value={searchQuery}
+            onChange={handleInputChange}
+            onFocus={() => setShowResults(true)}
+            onBlur={() => setTimeout(() => setShowResults(false), 200)}
+          />
+          <div className="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg
-              className="w-4 h-4 text-gray-500 dark:text-gray-400"
+              className="w-4 h-4 text-black transition-colors"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -69,40 +87,24 @@ const SearchBar = ({ people, onSelectPerson }) => {
               />
             </svg>
           </div>
-          <input
-            type="search"
-            id="default-search"
-            className="block w-full p-4 ps-10 pr-24 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Search for people..."
-            value={searchQuery}
-            onChange={handleInputChange}
-            onFocus={() => setShowResults(true)}
-            onBlur={() => setTimeout(() => setShowResults(false), 200)}
-          />
           {searchQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="text-gray-500 absolute end-24 bottom-2.5 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium rounded-lg text-sm px-2 py-2"
+              className="text-gray-600 absolute end-2.5 bottom-2.5 hover:text-gray-800 font-medium rounded-lg text-sm px-2 py-2 transition-colors"
             >
               ✕
             </button>
           )}
-          <button
-            type="submit"
-            className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            Search
-          </button>
         </div>
 
         {/* Search Results Dropdown */}
         {showResults && filteredPeople.length > 0 && (
-          <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-600 max-h-96 overflow-y-auto">
+          <div className="absolute z-10 mt-2 w-full bg-white/90 backdrop-blur-md border border-white/30 rounded-xl shadow-xl max-h-96 overflow-y-auto transition-all">
             {filteredPeople.map((person) => (
               <div
                 key={person.id}
-                className="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                className="flex items-center gap-3 p-3 hover:bg-white/70 cursor-pointer border-b border-gray-200/50 last:border-b-0 transition-all first:rounded-t-xl last:rounded-b-xl"
                 onClick={() => handleSelectPerson(person)}
               >
                 <img
@@ -111,10 +113,10 @@ const SearchBar = ({ people, onSelectPerson }) => {
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">
+                  <div className="font-medium text-gray-900">
                     {person.first_name} {person.last_name}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                  <div className="text-sm text-gray-600 truncate">
                     {person.bio}
                   </div>
                 </div>

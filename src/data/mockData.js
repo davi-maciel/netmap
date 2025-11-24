@@ -90,6 +90,7 @@ export const locations = [
     label: "Northwestern University",
     latitude: 42.050703,
     longitude: -87.678376,
+    connection: "College",
   },
   {
     id: 2,
@@ -97,6 +98,7 @@ export const locations = [
     label: "São Paulo, Brazil",
     latitude: -23.579313,
     longitude: -46.639187,
+    connection: "Hometown",
   },
   // Kaio's locations
   {
@@ -105,6 +107,7 @@ export const locations = [
     label: "Northwestern University",
     latitude: 42.050703,
     longitude: -87.678376,
+    connection: "College",
   },
   {
     id: 4,
@@ -112,6 +115,7 @@ export const locations = [
     label: "Belo Horizonte, Brazil",
     latitude: -19.927092,
     longitude: -43.953965,
+    connection: "Hometown",
   },
   // Maya's locations
   {
@@ -120,6 +124,7 @@ export const locations = [
     label: "Stanford University",
     latitude: 37.429464,
     longitude: -122.169719,
+    connection: "Grad School",
   },
   {
     id: 6,
@@ -127,6 +132,7 @@ export const locations = [
     label: "Mumbai, India",
     latitude: 19.075983,
     longitude: 72.877426,
+    connection: "Hometown",
   },
   {
     id: 7,
@@ -134,6 +140,7 @@ export const locations = [
     label: "Mountain View, CA",
     latitude: 37.422,
     longitude: -122.084,
+    connection: "Work",
   },
   // James's locations
   {
@@ -142,6 +149,7 @@ export const locations = [
     label: "MIT",
     latitude: 42.360253,
     longitude: -71.092003,
+    connection: "College",
   },
   {
     id: 9,
@@ -149,6 +157,7 @@ export const locations = [
     label: "Hong Kong",
     latitude: 22.396428,
     longitude: 114.109497,
+    connection: "Hometown",
   },
   // Sofia's locations
   {
@@ -157,6 +166,7 @@ export const locations = [
     label: "UC Berkeley",
     latitude: 37.871899,
     longitude: -122.258515,
+    connection: "College",
   },
   {
     id: 11,
@@ -164,6 +174,7 @@ export const locations = [
     label: "Mexico City, Mexico",
     latitude: 19.432608,
     longitude: -99.133209,
+    connection: "Hometown",
   },
   // Ahmed's locations
   {
@@ -172,6 +183,7 @@ export const locations = [
     label: "Northwestern University",
     latitude: 42.050703,
     longitude: -87.678376,
+    connection: "College",
   },
   {
     id: 13,
@@ -179,6 +191,7 @@ export const locations = [
     label: "Cairo, Egypt",
     latitude: 30.04442,
     longitude: 31.235712,
+    connection: "Hometown",
   },
   // Emma's locations
   {
@@ -187,6 +200,7 @@ export const locations = [
     label: "Stanford University",
     latitude: 37.429464,
     longitude: -122.169719,
+    connection: "College",
   },
   {
     id: 15,
@@ -194,6 +208,7 @@ export const locations = [
     label: "London, UK",
     latitude: 51.507351,
     longitude: -0.127758,
+    connection: "Hometown",
   },
   // Yuki's locations
   {
@@ -202,6 +217,7 @@ export const locations = [
     label: "MIT",
     latitude: 42.360253,
     longitude: -71.092003,
+    connection: "College",
   },
   {
     id: 17,
@@ -209,6 +225,7 @@ export const locations = [
     label: "Tokyo, Japan",
     latitude: 35.689487,
     longitude: 139.691706,
+    connection: "Hometown",
   },
   {
     id: 18,
@@ -216,6 +233,7 @@ export const locations = [
     label: "MIT Research Lab",
     latitude: 42.361145,
     longitude: -71.089264,
+    connection: "Work",
   },
   {
     id: 19,
@@ -223,6 +241,7 @@ export const locations = [
     label: "Ari de Sá Cavalcante",
     latitude: -3.745609541860808,
     longitude: -38.49246048706968,
+    connection: "School",
   },
   {
     id: 20,
@@ -230,6 +249,7 @@ export const locations = [
     label: "Home",
     latitude: 31.2555372007631,
     longitude: 121.44630961706912,
+    connection: "Home",
   },
 ];
 
