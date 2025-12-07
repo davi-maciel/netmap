@@ -63,7 +63,7 @@ const SearchBar = ({ people, onSelectPerson }) => {
           <input
             type="search"
             id="default-search"
-            className="block w-full p-4 ps-16 pr-10 text-sm text-gray-900 border border-white/30 rounded-xl bg-white/80 backdrop-blur-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg hover:bg-white/90"
+            className="block w-full h-12 ps-16 pr-10 text-sm text-gray-900 border border-white/30 rounded-xl bg-white/80 backdrop-blur-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg hover:bg-white/90"
             placeholder="Search for people..."
             value={searchQuery}
             onChange={handleInputChange}
@@ -91,7 +91,7 @@ const SearchBar = ({ people, onSelectPerson }) => {
             <button
               type="button"
               onClick={handleClearSearch}
-              className="text-gray-600 absolute end-2.5 bottom-2.5 hover:text-gray-800 font-medium rounded-lg text-sm px-2 py-2 transition-colors"
+              className="text-gray-600 absolute end-2.5 top-1/2 -translate-y-1/2 hover:text-gray-800 font-medium rounded-lg text-sm px-2 py-2 transition-colors"
             >
               ✕
             </button>

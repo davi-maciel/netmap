@@ -26,6 +26,7 @@ export default function Home() {
       center: [0, 20],
       zoom: 2,
       attributionControl: false, // Remove attribution control
+      dragRotate: false, // Disable map rotation
     });
 
     mapRef.current = map;
@@ -51,7 +52,10 @@ export default function Home() {
     });
 
     // Add navigation controls on the right side instead
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
+    map.addControl(
+      new maplibregl.NavigationControl({ showCompass: false }),
+      "bottom-right"
+    );
 
     // Clear selection when clicking on the map
     map.on("click", () => {
