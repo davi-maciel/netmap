@@ -7,6 +7,9 @@ import styles from "./page.module.css";
 import { getLocationsWithPeople, people, getPersonById } from "@/data/mockData";
 import SearchBar from "./SearchBar";
 import PersonDetailsCard from "./PersonDetailsCard";
+import AddPersonButton from "./AddPersonButton";
+import AddPersonCard from "./AddPersonCard";
+import Notification from "./Notification";
 
 export default function Home() {
   const mapContainerRef = useRef(null);
@@ -15,6 +18,8 @@ export default function Home() {
   const markerElementsRef = useRef({});
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [detailedPerson, setDetailedPerson] = useState(null); // For the details card
+  const [isAddPersonOpen, setIsAddPersonOpen] = useState(false);
+  const [notification, setNotification] = useState(null); // {message, type}
   const locationsWithPeople = getLocationsWithPeople();
 
   useEffect(() => {
@@ -162,6 +167,45 @@ export default function Home() {
           onClose={() => setDetailedPerson(null)}
         />
       </div>
+      {isAddPersonOpen ? (
+        <AddPersonCard
+          onClose={() => setIsAddPersonOpen(false)}
+          onAdd={(data) => {
+            console.log("New person data:", data);
+
+            // Simulate async operation (e.g., database save)
+            try {
+              // TODO: Replace with actual database save
+              // For now, just validate and show success
+              if (data.firstName && data.lastName && data.locations.length > 0) {
+                setNotification({
+                  message: `${data.firstName} ${data.lastName} added successfully!`,
+                  type: "success"
+                });
+                setIsAddPersonOpen(false);
+              } else {
+                throw new Error("Missing required fields");
+              }
+            } catch (error) {
+              setNotification({
+                message: "Failed to add person. Please try again.",
+                type: "error"
+              });
+            }
+          }}
+        />
+      ) : (
+        <AddPersonButton onClick={() => setIsAddPersonOpen(true)} />
+      )}
+
+      {/* Notification */}
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }
