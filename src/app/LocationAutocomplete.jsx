@@ -16,6 +16,11 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Search for a loc
     const debounceTimer = useRef(null);
     const dropdownRef = useRef(null);
 
+    // Sync internal query state with external value prop
+    useEffect(() => {
+        setQuery(value || "");
+    }, [value]);
+
     // Fetch suggestions from Nominatim API
     const fetchSuggestions = async (searchQuery) => {
         if (!searchQuery.trim() || searchQuery.length < 3) {

@@ -10,6 +10,8 @@ import PersonDetailsCard from "./PersonDetailsCard";
 import AddPersonButton from "./AddPersonButton";
 import AddPersonCard from "./AddPersonCard";
 import Notification from "./Notification";
+import LogoutButton from "./LogoutButton";
+import ZoomControls from "./ZoomControls";
 
 export default function Home() {
   const mapContainerRef = useRef(null);
@@ -56,11 +58,7 @@ export default function Home() {
       });
     });
 
-    // Add navigation controls on the right side instead
-    map.addControl(
-      new maplibregl.NavigationControl({ showCompass: false }),
-      "bottom-right"
-    );
+
 
     // Clear selection when clicking on the map
     map.on("click", () => {
@@ -165,6 +163,17 @@ export default function Home() {
         <PersonDetailsCard
           person={detailedPerson}
           onClose={() => setDetailedPerson(null)}
+          onSave={(updatedPerson) => {
+            console.log("Updated person data:", updatedPerson);
+
+            // TODO: Replace with actual database update
+            // For now, just update the detailed person state and show notification
+            setDetailedPerson(updatedPerson);
+            setNotification({
+              message: `${updatedPerson.first_name} ${updatedPerson.last_name} updated successfully!`,
+              type: "success"
+            });
+          }}
         />
       </div>
       {isAddPersonOpen ? (
@@ -195,7 +204,21 @@ export default function Home() {
           }}
         />
       ) : (
-        <AddPersonButton onClick={() => setIsAddPersonOpen(true)} />
+        <>
+          <AddPersonButton onClick={() => setIsAddPersonOpen(true)} />
+          <ZoomControls
+            onZoomIn={() => mapRef.current?.zoomIn()}
+            onZoomOut={() => mapRef.current?.zoomOut()}
+          />
+          <LogoutButton onClick={() => {
+            console.log("Logout clicked");
+            // TODO: Implement actual logout functionality with Supabase
+            setNotification({
+              message: "Logout functionality coming soon!",
+              type: "success"
+            });
+          }} />
+        </>
       )}
 
       {/* Notification */}
