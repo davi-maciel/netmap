@@ -88,14 +88,55 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Search for a loc
     };
 
     const handleSelectSuggestion = (suggestion) => {
-        const locationLabel = suggestion.display_name;
-        setQuery(locationLabel);
+        // Simplify the location name
+        const simplifyLocationName = (displayName, address) => {
+            // Try to get a simple name from the address object
+            if (address) {
+                // Priority order for what to show
+                const candidates = [
+                    address.university,
+                    address.college,
+                    address.school,
+                    address.building,
+                    address.amenity,
+                    address.city,
+                    address.town,
+                    address.village,
+                    address.municipality,
+                    address.county,
+                    address.state,
+                    address.country
+                ];
+
+                // Find first non-null candidate
+                for (const candidate of candidates) {
+                    if (candidate) {
+                        // Add country if it's a city/town/village
+                        if (address.city || address.town || address.village) {
+                            return `${candidate}, ${address.country}`;
+                        }
+                        return candidate;
+                    }
+                }
+            }
+
+            // Fallback: take first 2-3 parts of display_name
+            const parts = displayName.split(',').map(p => p.trim());
+            if (parts.length <= 2) return displayName;
+
+            // Return first part + country (last part)
+            return `${parts[0]}, ${parts[parts.length - 1]}`;
+        };
+
+        const simplifiedLabel = simplifyLocationName(suggestion.display_name, suggestion.address);
+
+        setQuery(simplifiedLabel);
         setShowSuggestions(false);
 
-        // Pass the full location object to parent
+        // Pass the simplified location object to parent
         if (onChange) {
             onChange({
-                label: locationLabel,
+                label: simplifiedLabel,
                 latitude: parseFloat(suggestion.lat),
                 longitude: parseFloat(suggestion.lon),
             });

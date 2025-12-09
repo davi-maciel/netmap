@@ -22,6 +22,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
     const [newLocation, setNewLocation] = useState({
         locationData: null, // {label, latitude, longitude}
         connection: "College", // Default connection type
+        customConnection: "", // Custom connection type when "Custom" is selected
     });
 
     const connectionTypes = [
@@ -33,7 +34,8 @@ const AddPersonCard = ({ onClose, onAdd }) => {
         "Home",
         "Family",
         "Travel",
-        "Other"
+        "Other",
+        "Custom"
     ];
 
     const handleChange = (e) => {
@@ -50,9 +52,15 @@ const AddPersonCard = ({ onClose, onAdd }) => {
             return;
         }
 
+        // If "Custom" is selected, validate that customConnection is not empty
+        if (newLocation.connection === "Custom" && !newLocation.customConnection.trim()) {
+            alert("Please enter a custom connection type");
+            return;
+        }
+
         const locationToAdd = {
             ...newLocation.locationData,
-            connection: newLocation.connection,
+            connection: newLocation.connection === "Custom" ? newLocation.customConnection : newLocation.connection,
         };
 
         setFormData((prev) => ({
@@ -64,6 +72,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
         setNewLocation({
             locationData: null,
             connection: "College",
+            customConnection: "",
         });
     };
 
@@ -85,6 +94,13 @@ const AddPersonCard = ({ onClose, onAdd }) => {
         setNewLocation((prev) => ({
             ...prev,
             connection: e.target.value,
+        }));
+    };
+
+    const handleCustomConnectionChange = (e) => {
+        setNewLocation((prev) => ({
+            ...prev,
+            customConnection: e.target.value,
         }));
     };
 
@@ -222,27 +238,40 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                             placeholder="Search for a location..."
                         />
 
-                        <div className="flex gap-2">
-                            <select
-                                value={newLocation.connection}
-                                onChange={handleConnectionChange}
-                                className="flex-1 px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
-                            >
-                                {connectionTypes.map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="space-y-2">
+                            <div className="flex gap-2">
+                                <select
+                                    value={newLocation.connection}
+                                    onChange={handleConnectionChange}
+                                    className="flex-1 px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                                >
+                                    {connectionTypes.map((type) => (
+                                        <option key={type} value={type}>
+                                            {type}
+                                        </option>
+                                    ))}
+                                </select>
 
-                            <button
-                                type="button"
-                                onClick={handleAddLocation}
-                                disabled={!newLocation.locationData}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-all"
-                            >
-                                Add
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={handleAddLocation}
+                                    disabled={!newLocation.locationData}
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-all"
+                                >
+                                    Add
+                                </button>
+                            </div>
+
+                            {/* Show custom connection input when "Custom" is selected */}
+                            {newLocation.connection === "Custom" && (
+                                <input
+                                    type="text"
+                                    value={newLocation.customConnection}
+                                    onChange={handleCustomConnectionChange}
+                                    placeholder="Enter custom connection type..."
+                                    className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

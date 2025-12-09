@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import LocationAutocomplete from "./LocationAutocomplete";
 
 /**
@@ -18,7 +20,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
     firstName: person?.first_name || "",
     lastName: person?.last_name || "",
     bio: person?.bio || "",
-    profilePicture: person?.profile_picture || "",
+    profilePicture: person?.profile_picture_url || "",
     locations: person?.locations || [],
   });
 
@@ -26,6 +28,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
   const [newLocation, setNewLocation] = useState({
     locationData: null,
     connection: "College",
+    customConnection: "",
   });
 
   const connectionTypes = [
@@ -37,7 +40,8 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
     "Home",
     "Family",
     "Travel",
-    "Other"
+    "Other",
+    "Custom"
   ];
 
   // Sync form data when person changes
@@ -48,7 +52,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
       firstName: person.first_name,
       lastName: person.last_name,
       bio: person.bio,
-      profilePicture: person.profile_picture,
+      profilePicture: person.profile_picture_url,
       locations: person.locations || [],
     });
     setIsEditing(false); // Reset to view mode when person changes
@@ -85,9 +89,15 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
       return;
     }
 
+    // If "Custom" is selected, validate that customConnection is not empty
+    if (newLocation.connection === "Custom" && !newLocation.customConnection.trim()) {
+      alert("Please enter a custom connection type");
+      return;
+    }
+
     const locationToAdd = {
       ...newLocation.locationData,
-      connection: newLocation.connection,
+      connection: newLocation.connection === "Custom" ? newLocation.customConnection : newLocation.connection,
       id: Date.now(), // Temporary ID for new locations
     };
 
@@ -99,6 +109,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
     setNewLocation({
       locationData: null,
       connection: "College",
+      customConnection: "",
     });
   };
 
@@ -123,6 +134,13 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
     }));
   };
 
+  const handleCustomConnectionChange = (e) => {
+    setNewLocation((prev) => ({
+      ...prev,
+      customConnection: e.target.value,
+    }));
+  };
+
   const handleSave = () => {
     if (onSave) {
       onSave({
@@ -131,6 +149,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
         last_name: formData.lastName,
         bio: formData.bio,
         profile_picture: formData.profilePicture,
+        profilePictureFile: formData.profilePictureFile, // The actual File object for upload
         locations: formData.locations,
       });
     }
@@ -143,7 +162,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
       firstName: person.first_name,
       lastName: person.last_name,
       bio: person.bio,
-      profilePicture: person.profile_picture,
+      profilePicture: person.profile_picture_url,
       locations: person.locations || [],
     });
     setIsEditing(false);
@@ -159,7 +178,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
       {/* Profile Picture Header */}
       <div className="relative h-64 overflow-hidden group">
         <img
-          src={isEditing ? formData.profilePicture : person.profile_picture}
+          src={isEditing ? formData.profilePicture : (person.profile_picture_url || 'https://i.pravatar.cc/200?img=1')}
           alt={`${person.first_name} ${person.last_name}`}
           className="w-full h-full object-cover object-top"
         />
@@ -213,9 +232,11 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
             </div>
 
             {/* Bio */}
-            <p className="text-gray-700 mb-6 leading-relaxed">
-              {person.bio}
-            </p>
+            <div className="text-gray-700 mb-6 leading-relaxed [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mt-4 [&>h1]:mb-2 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-2 [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:mt-2 [&>h3]:mb-1 [&>ul]:list-disc [&>ul]:ml-6 [&>ul]:my-2 [&>ol]:list-decimal [&>ol]:ml-6 [&>ol]:my-2 [&>li]:my-1 [&>p]:mb-2 [&>a]:text-blue-600 [&>a]:underline [&>strong]:font-bold [&>em]:italic [&>code]:bg-gray-100 [&>code]:px-1 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {person.bio}
+              </ReactMarkdown>
+            </div>
 
             {/* Locations Section */}
             {person.locations && person.locations.length > 0 && (
@@ -337,27 +358,40 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
                     placeholder="Search for a location..."
                   />
 
-                  <div className="flex gap-2">
-                    <select
-                      value={newLocation.connection}
-                      onChange={handleConnectionChange}
-                      className="flex-1 px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
-                    >
-                      {connectionTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <select
+                        value={newLocation.connection}
+                        onChange={handleConnectionChange}
+                        className="flex-1 px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                      >
+                        {connectionTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
 
-                    <button
-                      type="button"
-                      onClick={handleAddLocation}
-                      disabled={!newLocation.locationData}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-all"
-                    >
-                      Add
-                    </button>
+                      <button
+                        type="button"
+                        onClick={handleAddLocation}
+                        disabled={!newLocation.locationData}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-all"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    {/* Show custom connection input when "Custom" is selected */}
+                    {newLocation.connection === "Custom" && (
+                      <input
+                        type="text"
+                        value={newLocation.customConnection}
+                        onChange={handleCustomConnectionChange}
+                        placeholder="Enter custom connection type..."
+                        className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                      />
+                    )}
                   </div>
                 </div>
               </div>

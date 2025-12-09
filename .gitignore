@@ -262,3 +262,7 @@ node_modules/
 *.md
 !README.md
 !docs/design/*.md
+
+# Environment variables
+.env.local
+.env*.local
