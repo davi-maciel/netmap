@@ -258,11 +258,20 @@ gradle-app.setting
 node_modules/
 .next/
 
-# Ignore all markdown files except README.md and docs/design/
+# Ignore all markdown files except README.md
 *.md
 !README.md
-!docs/design/*.md
+
+# Ignore docs folder (internal development only)
+docs/
 
 # Environment variables
+.env
 .env.local
 .env*.local
+
+# Security - private keys and certificates
+*.pem
+*.key
+*.p12
+*.crt
