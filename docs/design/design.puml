@@ -1,2 +1,221 @@
-@startuml
+@startuml NetMap Class Diagram
+
+' ==================== UI Components ====================
+
+package "UI Components" {
+  class HomePage {
+    - selectedPerson: Person
+    - detailedPerson: Person
+    - isAddPersonOpen: boolean
+    - notification: {message, type}
+    - isAuthenticated: boolean
+    - people: Person[]
+    - isLoading: boolean
+    - locationsWithPeople: Location[]
+    - mapRef: MapLibreGL
+    - markersRef: Map
+    + checkAuth(): void
+    + loadData(): void
+    + handleAddPerson(data): void
+    + handleUpdatePerson(person): void
+    + handleLogout(): void
+  }
+
+  class SearchBar {
+    + people: Person[]
+    + onSelectPerson: function
+    + render(): JSX
+  }
+
+  class PersonDetailsCard {
+    + person: Person
+    + onClose: function
+    + onSave: function
+    - isEditing: boolean
+    - formData: object
+    - newLocation: object
+    + handleSave(): void
+    + handleCancel(): void
+    + handleAddLocation(): void
+  }
+
+  class AddPersonCard {
+    + onClose: function
+    + onAdd: function
+    - formData: object
+    - newLocation: object
+    + handleSubmit(): void
+    + handleAddLocation(): void
+  }
+
+  class LocationAutocomplete {
+    + value: string
+    + onChange: function
+    + placeholder: string
+    - query: string
+    - suggestions: object[]
+    - isLoading: boolean
+    + handleSearch(): void
+    + handleSelectSuggestion(suggestion): void
+  }
+
+  class LoginPage {
+    - email: string
+    - password: string
+    - error: string
+    + handleLogin(): void
+  }
+
+  class SignupPage {
+    - formData: object
+    - error: string
+    + handleSignup(): void
+  }
+
+  class ZoomControls {
+    + onZoomIn: function
+    + onZoomOut: function
+  }
+
+  class Notification {
+    + message: string
+    + type: string
+    + onClose: function
+  }
+
+  class LogoutButton {
+    + onClick: function
+  }
+
+  class AddPersonButton {
+    + onClick: function
+  }
+}
+
+' ==================== Service Layer ====================
+
+package "Service Layer" {
+  class ApiModule <<module>> {
+    + {static} getPeopleWithLocations(): Person[]
+    + {static} getPersonById(personId): Person
+    + {static} addPerson(data): Person
+    + {static} updatePerson(id, data): Person
+    + {static} deletePerson(personId): void
+    + {static} getLocationsWithPeople(): Location[]
+  }
+
+  class StorageModule <<module>> {
+    + {static} uploadProfilePicture(personId, file): {url}
+  }
+
+  class SupabaseClient <<singleton>> {
+    + from(table): QueryBuilder
+    + auth: AuthClient
+    + storage: StorageClient
+  }
+}
+
+' ==================== Data Models ====================
+
+package "Data Models" {
+  class Person {
+    + id: UUID
+    + user_id: UUID
+    + first_name: string
+    + last_name: string
+    + bio: string
+    + profile_picture_url: string
+    + locations: Location[]
+    + created_at: timestamp
+    + updated_at: timestamp
+  }
+
+  class Location {
+    + id: UUID
+    + person_id: UUID
+    + label: string
+    + latitude: decimal
+    + longitude: decimal
+    + connection: string
+    + created_at: timestamp
+    + updated_at: timestamp
+  }
+}
+
+' ==================== External Dependencies ====================
+
+package "External Libraries" {
+  class MapLibreGL <<external>> {
+    + Map
+    + Marker
+  }
+
+  class Supercluster <<external>> {
+    + load(points): void
+    + getClusters(bbox, zoom): Cluster[]
+    + getClusterExpansionZoom(clusterId): number
+  }
+
+  class D3Force <<external>> {
+    + forceSimulation(nodes): Simulation
+    + forceCollide(radius): Force
+  }
+
+  class NominatimAPI <<external>> {
+    + search(query): Location[]
+  }
+
+  class ReactMarkdown <<external>> {
+    + render(markdown): JSX
+  }
+}
+
+' ==================== Relationships ====================
+
+' HomePage relationships
+HomePage *-- SearchBar : contains
+HomePage *-- PersonDetailsCard : contains
+HomePage *-- AddPersonCard : contains
+HomePage *-- ZoomControls : contains
+HomePage *-- LogoutButton : contains
+HomePage *-- AddPersonButton : contains
+HomePage *-- Notification : contains
+HomePage ..> ApiModule : depends on
+HomePage ..> SupabaseClient : depends on
+HomePage ..> MapLibreGL : uses
+HomePage ..> Supercluster : uses
+HomePage ..> D3Force : uses
+HomePage --> Person : manages
+
+' PersonDetailsCard relationships
+PersonDetailsCard *-- LocationAutocomplete : contains
+PersonDetailsCard ..> ReactMarkdown : uses
+PersonDetailsCard --> Person : displays/edits
+
+' AddPersonCard relationships
+AddPersonCard *-- LocationAutocomplete : contains
+AddPersonCard --> Person : creates
+
+' LocationAutocomplete relationships
+LocationAutocomplete ..> NominatimAPI : calls
+
+' LoginPage/SignupPage relationships
+LoginPage ..> SupabaseClient : uses
+SignupPage ..> SupabaseClient : uses
+
+' ApiModule relationships
+ApiModule ..> SupabaseClient : depends on
+ApiModule ..> StorageModule : uses
+ApiModule --> Person : returns
+ApiModule --> Location : returns
+
+' StorageModule relationships
+StorageModule ..> SupabaseClient : depends on
+
+' Data model relationships
+Person "1" *-- "0..*" Location : has
+
+' SearchBar relationships
+SearchBar --> Person : displays
+
 @enduml
