@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import LocationAutocomplete from "./LocationAutocomplete";
+import { compressProfilePicture } from "../lib/imageCompression";
 
 /**
  * PersonDetailsCard - Display detailed person information
@@ -23,6 +24,9 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
     profilePicture: person?.profile_picture_url || "",
     locations: person?.locations || [],
   });
+
+  // Key to force file input reset when needed
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   // Temporary state for adding a new location in edit mode
   const [newLocation, setNewLocation] = useState({
@@ -63,17 +67,26 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
   // Early return AFTER all hooks have been called
   if (!person) return null;
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
 
     if (name === "profilePictureFile" && files && files[0]) {
+      // Compress and convert to WebP
+      const { file: compressedFile, error } = await compressProfilePicture(files[0]);
+
+      if (error) {
+        alert(error);
+        // Force reset of file input by changing its key
+        setFileInputKey(prev => prev + 1);
+        return;
+      }
+
       // Handle file upload - create a preview URL
-      const file = files[0];
-      const previewUrl = URL.createObjectURL(file);
+      const previewUrl = URL.createObjectURL(compressedFile);
       setFormData((prev) => ({
         ...prev,
         profilePicture: previewUrl, // Update preview
-        profilePictureFile: file, // Store file for upload
+        profilePictureFile: compressedFile, // Store compressed file for upload
       }));
     } else {
       setFormData((prev) => ({
@@ -192,6 +205,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
             </svg>
             <span className="text-white font-medium text-sm">Change Photo</span>
             <input
+              key={fileInputKey}
               type="file"
               name="profilePictureFile"
               accept="image/*"

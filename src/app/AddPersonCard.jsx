@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import LocationAutocomplete from "./LocationAutocomplete";
+import { compressProfilePicture } from "../lib/imageCompression";
 
 /**
  * AddPersonCard - Card to add a new person
@@ -38,12 +39,29 @@ const AddPersonCard = ({ onClose, onAdd }) => {
         "Custom"
     ];
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { name, value, files } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: files ? files[0] : value,
-        }));
+
+        // Handle file upload with compression
+        if (files && files[0]) {
+            const { file: compressedFile, error } = await compressProfilePicture(files[0]);
+
+            if (error) {
+                alert(error);
+                e.target.value = ''; // Clear the input
+                return;
+            }
+
+            setFormData((prev) => ({
+                ...prev,
+                [name]: compressedFile,
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
     };
 
     const handleAddLocation = () => {
