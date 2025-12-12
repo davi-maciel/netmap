@@ -18,6 +18,7 @@ import ZoomControls from "./ZoomControls";
 import { supabase } from '@/lib/supabase';
 import { addPerson } from '@/lib/api';
 import { updatePerson } from '@/lib/api';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function Home() {
   const router = useRouter();
@@ -171,7 +172,7 @@ export default function Home() {
           properties: {
             personId: locations[0].person.id,
             personName: `${locations[0].person.first_name} ${locations[0].person.last_name}`,
-            profilePicture: locations[0].person.profile_picture_url || 'https://i.pravatar.cc/200?img=1',
+            profilePicture: getAvatarUrl(locations[0].person.first_name, locations[0].person.last_name, locations[0].person.profile_picture_url),
             locationId: locations[0].id,
           },
           geometry: {
@@ -202,7 +203,7 @@ export default function Home() {
             properties: {
               personId: node.location.person.id,
               personName: `${node.location.person.first_name} ${node.location.person.last_name}`,
-              profilePicture: node.location.person.profile_picture_url || 'https://i.pravatar.cc/200?img=1',
+              profilePicture: getAvatarUrl(node.location.person.first_name, node.location.person.last_name, node.location.person.profile_picture_url),
               locationId: node.location.id,
             },
             geometry: {
@@ -281,7 +282,7 @@ export default function Home() {
           const { personId, profilePicture } = cluster.properties;
           const el = document.createElement("div");
           el.className = styles.marker;
-          el.style.backgroundImage = `url(${profilePicture})`;
+          el.style.backgroundImage = `url("${profilePicture}")`;
           el.style.width = "70px";
           el.style.height = "70px";
           el.dataset.personId = personId;
@@ -383,6 +384,7 @@ export default function Home() {
         <PersonDetailsCard
           person={detailedPerson}
           onClose={() => setDetailedPerson(null)}
+          onNotification={setNotification}
           onSave={async (updatedPerson) => {
             try {
               await updatePerson(updatedPerson.id, {
@@ -417,6 +419,7 @@ export default function Home() {
       {isAddPersonOpen ? (
         <AddPersonCard
           onClose={() => setIsAddPersonOpen(false)}
+          onNotification={setNotification}
           onAdd={async (data) => {
             try {
               const newPerson = await addPerson(data)

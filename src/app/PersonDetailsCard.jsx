@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { compressProfilePicture } from "../lib/imageCompression";
+import { getAvatarUrl } from "../lib/avatar";
+import { INPUT_LIMITS } from "../lib/sanitize";
 
 /**
  * PersonDetailsCard - Display detailed person information
@@ -15,7 +17,7 @@ import { compressProfilePicture } from "../lib/imageCompression";
  * - Edit mode with pen icon toggle
  */
 
-const PersonDetailsCard = ({ person, onClose, onSave }) => {
+const PersonDetailsCard = ({ person, onClose, onSave, onNotification }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: person?.first_name || "",
@@ -62,8 +64,6 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
     setIsEditing(false); // Reset to view mode when person changes
   }, [person?.id]); // Only re-run when person.id changes
 
-  console.log("Rendering PersonDetailsCard with person:", person);
-
   // Early return AFTER all hooks have been called
   if (!person) return null;
 
@@ -75,7 +75,9 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
       const { file: compressedFile, error } = await compressProfilePicture(files[0]);
 
       if (error) {
-        alert(error);
+        if (onNotification) {
+          onNotification({ message: error, type: 'error' });
+        }
         // Force reset of file input by changing its key
         setFileInputKey(prev => prev + 1);
         return;
@@ -89,22 +91,34 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
         profilePictureFile: compressedFile, // Store compressed file for upload
       }));
     } else {
+      // Enforce limits programmatically
+      let finalValue = value;
+      if (name === "firstName" || name === "lastName") {
+        if (value.length > INPUT_LIMITS.NAME) finalValue = value.slice(0, INPUT_LIMITS.NAME);
+      } else if (name === "bio") {
+        if (value.length > INPUT_LIMITS.BIO) finalValue = value.slice(0, INPUT_LIMITS.BIO);
+      }
+
       setFormData((prev) => ({
         ...prev,
-        [name]: value,
+        [name]: finalValue,
       }));
     }
   };
 
   const handleAddLocation = () => {
     if (!newLocation.locationData) {
-      alert("Please select a location from the suggestions");
+      if (onNotification) {
+        onNotification({ message: 'Please select a location from the suggestions', type: 'error' });
+      }
       return;
     }
 
     // If "Custom" is selected, validate that customConnection is not empty
     if (newLocation.connection === "Custom" && !newLocation.customConnection.trim()) {
-      alert("Please enter a custom connection type");
+      if (onNotification) {
+        onNotification({ message: 'Please enter a custom connection type', type: 'error' });
+      }
       return;
     }
 
@@ -191,7 +205,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
       {/* Profile Picture Header */}
       <div className="relative h-64 overflow-hidden group">
         <img
-          src={isEditing ? formData.profilePicture : (person.profile_picture_url || 'https://i.pravatar.cc/200?img=1')}
+          src={isEditing ? formData.profilePicture : getAvatarUrl(person.first_name, person.last_name, person.profile_picture_url)}
           alt={`${person.first_name} ${person.last_name}`}
           className="w-full h-full object-cover object-top"
         />
@@ -297,6 +311,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
                     value={formData.firstName}
                     onChange={handleChange}
                     className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    maxLength={INPUT_LIMITS.NAME}
                     required
                   />
                 </div>
@@ -310,6 +325,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
                     value={formData.lastName}
                     onChange={handleChange}
                     className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    maxLength={INPUT_LIMITS.NAME}
                     required
                   />
                 </div>
@@ -325,6 +341,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
                   value={formData.bio}
                   onChange={handleChange}
                   rows={3}
+                  maxLength={INPUT_LIMITS.BIO}
                   className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
                   required
                 />
@@ -370,6 +387,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
                     value={newLocation.locationData?.label || ""}
                     onChange={handleLocationChange}
                     placeholder="Search for a location..."
+                    maxLength={INPUT_LIMITS.LOCATION_LABEL}
                   />
 
                   <div className="space-y-2">
@@ -403,6 +421,7 @@ const PersonDetailsCard = ({ person, onClose, onSave }) => {
                         value={newLocation.customConnection}
                         onChange={handleCustomConnectionChange}
                         placeholder="Enter custom connection type..."
+                        maxLength={INPUT_LIMITS.CONNECTION}
                         className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                       />
                     )}

@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { uploadProfilePicture } from './storage'
+import { sanitizeText, sanitizeMarkdown, INPUT_LIMITS } from './sanitize'
 
 // Get all people with their locations
 export async function getPeopleWithLocations() {
@@ -64,14 +65,19 @@ export async function addPerson({ firstName, lastName, bio, locations, profilePi
     try {
         const { data: { user } } = await supabase.auth.getUser()
 
+        // Sanitize inputs to prevent XSS and enforce length limits
+        const sanitizedFirstName = sanitizeText(firstName, INPUT_LIMITS.NAME)
+        const sanitizedLastName = sanitizeText(lastName, INPUT_LIMITS.NAME)
+        const sanitizedBio = sanitizeMarkdown(bio, INPUT_LIMITS.BIO)
+
         // Insert person
         const { data: person, error: personError } = await supabase
             .from('people')
             .insert({
                 user_id: user.id,
-                first_name: firstName,
-                last_name: lastName,
-                bio,
+                first_name: sanitizedFirstName,
+                last_name: sanitizedLastName,
+                bio: sanitizedBio,
                 profile_picture_url: null
             })
             .select()
@@ -97,10 +103,10 @@ export async function addPerson({ firstName, lastName, bio, locations, profilePi
         if (locations && locations.length > 0) {
             const locationsToInsert = locations.map(loc => ({
                 person_id: person.id,
-                label: loc.label,
+                label: sanitizeText(loc.label, INPUT_LIMITS.LOCATION_LABEL),
                 latitude: loc.latitude,
                 longitude: loc.longitude,
-                connection: loc.connection
+                connection: sanitizeText(loc.connection, INPUT_LIMITS.CONNECTION)
             }))
 
             const { data: insertedLocations, error: locationsError } = await supabase
@@ -132,11 +138,16 @@ export async function updatePerson(personId, { firstName, lastName, bio, locatio
             }
         }
 
+        // Sanitize inputs to prevent XSS and enforce length limits
+        const sanitizedFirstName = sanitizeText(firstName, INPUT_LIMITS.NAME)
+        const sanitizedLastName = sanitizeText(lastName, INPUT_LIMITS.NAME)
+        const sanitizedBio = sanitizeMarkdown(bio, INPUT_LIMITS.BIO)
+
         // Update person
         const updateData = {
-            first_name: firstName,
-            last_name: lastName,
-            bio
+            first_name: sanitizedFirstName,
+            last_name: sanitizedLastName,
+            bio: sanitizedBio
         }
 
         if (profilePictureUrl) {
@@ -162,10 +173,10 @@ export async function updatePerson(personId, { firstName, lastName, bio, locatio
         if (locations && locations.length > 0) {
             const locationsToInsert = locations.map(loc => ({
                 person_id: personId,
-                label: loc.label,
+                label: sanitizeText(loc.label, INPUT_LIMITS.LOCATION_LABEL),
                 latitude: loc.latitude,
                 longitude: loc.longitude,
-                connection: loc.connection
+                connection: sanitizeText(loc.connection, INPUT_LIMITS.CONNECTION)
             }))
 
             const { data: insertedLocations, error: locationsError } = await supabase

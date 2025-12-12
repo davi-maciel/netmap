@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { compressProfilePicture } from "../lib/imageCompression";
+import { INPUT_LIMITS } from "../lib/sanitize";
 
 /**
  * AddPersonCard - Card to add a new person
@@ -10,7 +11,7 @@ import { compressProfilePicture } from "../lib/imageCompression";
  * - Frosted glass aesthetic
  * - Supports multiple locations with connection types
  */
-const AddPersonCard = ({ onClose, onAdd }) => {
+const AddPersonCard = ({ onClose, onAdd, onNotification }) => {
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -47,7 +48,9 @@ const AddPersonCard = ({ onClose, onAdd }) => {
             const { file: compressedFile, error } = await compressProfilePicture(files[0]);
 
             if (error) {
-                alert(error);
+                if (onNotification) {
+                    onNotification({ message: error, type: 'error' });
+                }
                 e.target.value = ''; // Clear the input
                 return;
             }
@@ -57,22 +60,34 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                 [name]: compressedFile,
             }));
         } else {
+            // Enforce limits programmatically
+            let finalValue = value;
+            if (name === "firstName" || name === "lastName") {
+                if (value.length > INPUT_LIMITS.NAME) finalValue = value.slice(0, INPUT_LIMITS.NAME);
+            } else if (name === "bio") {
+                if (value.length > INPUT_LIMITS.BIO) finalValue = value.slice(0, INPUT_LIMITS.BIO);
+            }
+
             setFormData((prev) => ({
                 ...prev,
-                [name]: value,
+                [name]: finalValue,
             }));
         }
     };
 
     const handleAddLocation = () => {
         if (!newLocation.locationData) {
-            alert("Please select a location from the suggestions");
+            if (onNotification) {
+                onNotification({ message: 'Please select a location from the suggestions', type: 'error' });
+            }
             return;
         }
 
         // If "Custom" is selected, validate that customConnection is not empty
         if (newLocation.connection === "Custom" && !newLocation.customConnection.trim()) {
-            alert("Please enter a custom connection type");
+            if (onNotification) {
+                onNotification({ message: 'Please enter a custom connection type', type: 'error' });
+            }
             return;
         }
 
@@ -127,7 +142,9 @@ const AddPersonCard = ({ onClose, onAdd }) => {
 
         // Validation
         if (formData.locations.length === 0) {
-            alert("Please add at least one location");
+            if (onNotification) {
+                onNotification({ message: 'Please add at least one location', type: 'error' });
+            }
             return;
         }
 
@@ -167,6 +184,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                             onChange={handleChange}
                             className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="Jane"
+                            maxLength={INPUT_LIMITS.NAME}
                             required
                         />
                     </div>
@@ -181,6 +199,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                             onChange={handleChange}
                             className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="Doe"
+                            maxLength={INPUT_LIMITS.NAME}
                             required
                         />
                     </div>
@@ -197,6 +216,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                         rows={3}
                         className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
                         placeholder="A bit about this person..."
+                        maxLength={INPUT_LIMITS.BIO}
                         required
                     />
                 </div>
@@ -254,6 +274,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                             value={newLocation.locationData?.label || ""}
                             onChange={handleLocationChange}
                             placeholder="Search for a location..."
+                            maxLength={INPUT_LIMITS.LOCATION_LABEL}
                         />
 
                         <div className="space-y-2">
@@ -287,6 +308,7 @@ const AddPersonCard = ({ onClose, onAdd }) => {
                                     value={newLocation.customConnection}
                                     onChange={handleCustomConnectionChange}
                                     placeholder="Enter custom connection type..."
+                                    maxLength={INPUT_LIMITS.CONNECTION}
                                     className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                                 />
                             )}

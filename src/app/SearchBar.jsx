@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { getAvatarUrl } from "../lib/avatar";
+import { sanitizeText } from "../lib/sanitize";
 
 /**
  * SearchBar - Soft Glass/Frosted Effect
@@ -23,7 +25,9 @@ const SearchBar = ({ people, onSelectPerson }) => {
     : [];
 
   const handleInputChange = (e) => {
-    setSearchQuery(e.target.value);
+    // Sanitize input to prevent XSS
+    const sanitized = sanitizeText(e.target.value, 100);
+    setSearchQuery(sanitized);
     setShowResults(true);
   };
 
@@ -108,7 +112,7 @@ const SearchBar = ({ people, onSelectPerson }) => {
                 onClick={() => handleSelectPerson(person)}
               >
                 <img
-                  src={person.profile_picture}
+                  src={getAvatarUrl(person.first_name, person.last_name, person.profile_picture_url)}
                   alt={`${person.first_name} ${person.last_name}`}
                   className="w-10 h-10 rounded-full object-cover"
                 />

@@ -8,7 +8,7 @@ import React, { useState, useEffect, useRef } from "react";
  * - Dropdown with suggestions
  * - Returns full location object with coordinates
  */
-const LocationAutocomplete = ({ value, onChange, placeholder = "Search for a location..." }) => {
+const LocationAutocomplete = ({ value, onChange, placeholder = "Search for a location...", maxLength }) => {
     const [query, setQuery] = useState(value || "");
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -159,6 +159,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Search for a loc
                     value={query}
                     onChange={handleInputChange}
                     onFocus={() => setShowSuggestions(true)}
+                    maxLength={maxLength}
                     className="w-full px-3 py-2 pr-20 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     placeholder={placeholder}
                 />
