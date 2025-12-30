@@ -31,12 +31,15 @@ export async function uploadProfilePicture(personId, file) {
 
     if (uploadError) throw uploadError
 
-    // Get public URL
+    // Get public URL with cache-busting timestamp
     const { data } = supabase.storage
       .from('profile-pictures')
       .getPublicUrl(fileName)
 
-    return { url: data.publicUrl, error: null }
+    // Add timestamp to prevent browser caching old images
+    const urlWithCacheBust = `${data.publicUrl}?t=${Date.now()}`
+
+    return { url: urlWithCacheBust, error: null }
   } catch (error) {
     console.error('Upload error:', error)
     return { url: null, error }
