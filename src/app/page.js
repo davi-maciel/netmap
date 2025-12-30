@@ -368,8 +368,11 @@ export default function Home() {
     }
 
     // Update the detailed person card
-    const personWithLocations = getPersonById(selectedPerson.id);
-    setDetailedPerson(personWithLocations);
+    async function loadPersonDetails() {
+      const personWithLocations = await getPersonById(selectedPerson.id);
+      setDetailedPerson(personWithLocations);
+    }
+    loadPersonDetails();
   }, [selectedPerson]);
 
   // Don't render map until authenticated (after all hooks are called)
