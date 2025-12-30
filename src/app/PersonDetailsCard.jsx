@@ -17,7 +17,7 @@ import { INPUT_LIMITS } from "../lib/sanitize";
  * - Edit mode with pen icon toggle
  */
 
-const PersonDetailsCard = ({ person, onClose, onSave, onNotification }) => {
+const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: person?.first_name || "",
@@ -62,7 +62,7 @@ const PersonDetailsCard = ({ person, onClose, onSave, onNotification }) => {
       locations: person.locations || [],
     });
     setIsEditing(false); // Reset to view mode when person changes
-  }, [person?.id]); // Only re-run when person.id changes
+  }, [person]); // Re-run when person updates
 
   // Early return AFTER all hooks have been called
   if (!person) return null;
@@ -195,6 +195,14 @@ const PersonDetailsCard = ({ person, onClose, onSave, onNotification }) => {
     setIsEditing(false);
   };
 
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${person.first_name} ${person.last_name}? This action cannot be undone.`)) {
+      if (onDelete) {
+        onDelete(person);
+      }
+    }
+  };
+
   return (
     <div
       className="mt-4 bg-white/80 backdrop-blur-md border border-white/30 rounded-xl shadow-xl overflow-hidden flex flex-col"
@@ -205,7 +213,7 @@ const PersonDetailsCard = ({ person, onClose, onSave, onNotification }) => {
       {/* Profile Picture Header */}
       <div className="relative h-64 overflow-hidden group">
         <img
-          src={isEditing ? formData.profilePicture : getAvatarUrl(person.first_name, person.last_name, person.profile_picture_url)}
+          src={isEditing ? getAvatarUrl(formData.firstName, formData.lastName, formData.profilePicture) : getAvatarUrl(person.first_name, person.last_name, person.profile_picture_url)}
           alt={`${person.first_name} ${person.last_name}`}
           className="w-full h-full object-cover object-top"
         />
@@ -442,6 +450,16 @@ const PersonDetailsCard = ({ person, onClose, onSave, onNotification }) => {
                   className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Cancel
+                </button>
+              </div>
+
+              {/* Delete Button */}
+              <div className="pt-2">
+                <button
+                  onClick={handleDelete}
+                  className="w-full py-2 px-4 rounded-xl font-semibold bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                >
+                  Delete Person
                 </button>
               </div>
             </div>

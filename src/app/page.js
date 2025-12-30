@@ -18,6 +18,7 @@ import ZoomControls from "./ZoomControls";
 import { supabase } from '@/lib/supabase';
 import { addPerson } from '@/lib/api';
 import { updatePerson } from '@/lib/api';
+import { deletePerson } from '@/lib/api';
 import { getAvatarUrl } from '@/lib/avatar';
 
 export default function Home() {
@@ -387,13 +388,16 @@ export default function Home() {
           onNotification={setNotification}
           onSave={async (updatedPerson) => {
             try {
-              await updatePerson(updatedPerson.id, {
+              const result = await updatePerson(updatedPerson.id, {
                 firstName: updatedPerson.first_name,
                 lastName: updatedPerson.last_name,
                 bio: updatedPerson.bio,
                 locations: updatedPerson.locations,
                 profilePicture: updatedPerson.profilePictureFile // Pass the file for upload
               })
+
+              // Update the details card immediately
+              setDetailedPerson(result);
 
               // Refresh data
               const updatedPeople = await getPeopleWithLocations()
@@ -412,6 +416,33 @@ export default function Home() {
                 message: "Failed to update person.",
                 type: "error"
               })
+            }
+          }}
+          onDelete={async (personToDelete) => {
+            try {
+              await deletePerson(personToDelete.id);
+
+              // Refresh data
+              const updatedPeople = await getPeopleWithLocations();
+              setPeople(updatedPeople);
+
+              const updatedLocations = await getLocationsWithPeople();
+              setLocationsWithPeople(updatedLocations);
+
+              // Clear selection
+              setDetailedPerson(null);
+              setSelectedPerson(null);
+
+              setNotification({
+                message: `${personToDelete.first_name} ${personToDelete.last_name} deleted successfully.`,
+                type: "success"
+              });
+            } catch (error) {
+              console.error('Error deleting person:', error);
+              setNotification({
+                message: "Failed to delete person.",
+                type: "error"
+              });
             }
           }}
         />
