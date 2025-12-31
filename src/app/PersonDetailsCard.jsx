@@ -17,7 +17,13 @@ import { INPUT_LIMITS } from "../lib/sanitize";
  * - Edit mode with pen icon toggle
  */
 
-const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }) => {
+const PersonDetailsCard = ({
+  person,
+  onClose,
+  onSave,
+  onDelete,
+  onNotification,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: person?.first_name || "",
@@ -47,7 +53,7 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
     "Family",
     "Travel",
     "Other",
-    "Custom"
+    "Custom",
   ];
 
   // Sync form data when person changes
@@ -72,14 +78,16 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
 
     if (name === "profilePictureFile" && files && files[0]) {
       // Compress and convert to WebP
-      const { file: compressedFile, error } = await compressProfilePicture(files[0]);
+      const { file: compressedFile, error } = await compressProfilePicture(
+        files[0]
+      );
 
       if (error) {
         if (onNotification) {
-          onNotification({ message: error, type: 'error' });
+          onNotification({ message: error, type: "error" });
         }
         // Force reset of file input by changing its key
-        setFileInputKey(prev => prev + 1);
+        setFileInputKey((prev) => prev + 1);
         return;
       }
 
@@ -94,9 +102,11 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
       // Enforce limits programmatically
       let finalValue = value;
       if (name === "firstName" || name === "lastName") {
-        if (value.length > INPUT_LIMITS.NAME) finalValue = value.slice(0, INPUT_LIMITS.NAME);
+        if (value.length > INPUT_LIMITS.NAME)
+          finalValue = value.slice(0, INPUT_LIMITS.NAME);
       } else if (name === "bio") {
-        if (value.length > INPUT_LIMITS.BIO) finalValue = value.slice(0, INPUT_LIMITS.BIO);
+        if (value.length > INPUT_LIMITS.BIO)
+          finalValue = value.slice(0, INPUT_LIMITS.BIO);
       }
 
       setFormData((prev) => ({
@@ -109,22 +119,34 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
   const handleAddLocation = () => {
     if (!newLocation.locationData) {
       if (onNotification) {
-        onNotification({ message: 'Please select a location from the suggestions', type: 'error' });
+        onNotification({
+          message: "Please select a location from the suggestions",
+          type: "error",
+        });
       }
       return;
     }
 
     // If "Custom" is selected, validate that customConnection is not empty
-    if (newLocation.connection === "Custom" && !newLocation.customConnection.trim()) {
+    if (
+      newLocation.connection === "Custom" &&
+      !newLocation.customConnection.trim()
+    ) {
       if (onNotification) {
-        onNotification({ message: 'Please enter a custom connection type', type: 'error' });
+        onNotification({
+          message: "Please enter a custom connection type",
+          type: "error",
+        });
       }
       return;
     }
 
     const locationToAdd = {
       ...newLocation.locationData,
-      connection: newLocation.connection === "Custom" ? newLocation.customConnection : newLocation.connection,
+      connection:
+        newLocation.connection === "Custom"
+          ? newLocation.customConnection
+          : newLocation.connection,
       id: Date.now(), // Temporary ID for new locations
     };
 
@@ -196,7 +218,11 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
   };
 
   const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to delete ${person.first_name} ${person.last_name}? This action cannot be undone.`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${person.first_name} ${person.last_name}? This action cannot be undone.`
+      )
+    ) {
       if (onDelete) {
         onDelete(person);
       }
@@ -207,13 +233,25 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
     <div
       className="mt-4 bg-white/80 backdrop-blur-md border border-white/30 rounded-xl shadow-xl overflow-hidden flex flex-col"
       style={{
-        height: 'calc(100vh - 120px)',
+        height: "calc(100vh - 120px)",
       }}
     >
       {/* Profile Picture Header */}
       <div className="relative h-64 overflow-hidden group">
         <img
-          src={isEditing ? getAvatarUrl(formData.firstName, formData.lastName, formData.profilePicture) : getAvatarUrl(person.first_name, person.last_name, person.profile_picture_url)}
+          src={
+            isEditing
+              ? getAvatarUrl(
+                  formData.firstName,
+                  formData.lastName,
+                  formData.profilePicture
+                )
+              : getAvatarUrl(
+                  person.first_name,
+                  person.last_name,
+                  person.profile_picture_url
+                )
+          }
           alt={`${person.first_name} ${person.last_name}`}
           className="w-full h-full object-cover object-top"
         />
@@ -221,9 +259,24 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
         {/* Edit Overlay - Only shows in edit mode */}
         {isEditing && (
           <label className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg className="w-12 h-12 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg
+              className="w-12 h-12 text-white mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+              />
             </svg>
             <span className="text-white font-medium text-sm">Change Photo</span>
             <input
@@ -261,8 +314,18 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 hover:text-blue-600 transition-all"
                 title="Edit person"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  />
                 </svg>
               </button>
             </div>
@@ -358,7 +421,9 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
               {/* Locations Section */}
               <div className="border-t border-gray-200/50 pt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Locations {formData.locations.length > 0 && `(${formData.locations.length})`}
+                  Locations{" "}
+                  {formData.locations.length > 0 &&
+                    `(${formData.locations.length})`}
                 </label>
 
                 {/* Display added locations */}
@@ -394,7 +459,7 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
                   <LocationAutocomplete
                     value={newLocation.locationData?.label || ""}
                     onChange={handleLocationChange}
-                    placeholder="Search for a location..."
+                    placeholder="Search for a location"
                     maxLength={INPUT_LIMITS.LOCATION_LABEL}
                   />
 
@@ -428,7 +493,7 @@ const PersonDetailsCard = ({ person, onClose, onSave, onDelete, onNotification }
                         type="text"
                         value={newLocation.customConnection}
                         onChange={handleCustomConnectionChange}
-                        placeholder="Enter custom connection type..."
+                        placeholder="Enter custom connection type"
                         maxLength={INPUT_LIMITS.CONNECTION}
                         className="w-full px-3 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                       />

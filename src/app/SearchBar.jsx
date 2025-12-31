@@ -19,9 +19,10 @@ const SearchBar = ({ people, onSelectPerson }) => {
   // Filter people based on search query
   const filteredPeople = searchQuery.trim()
     ? people.filter((person) => {
-      const fullName = `${person.first_name} ${person.last_name}`.toLowerCase();
-      return fullName.includes(searchQuery.toLowerCase());
-    })
+        const fullName =
+          `${person.first_name} ${person.last_name}`.toLowerCase();
+        return fullName.includes(searchQuery.toLowerCase());
+      })
     : [];
 
   const handleInputChange = (e) => {
@@ -68,7 +69,7 @@ const SearchBar = ({ people, onSelectPerson }) => {
             type="search"
             id="default-search"
             className="block w-full h-12 ps-16 pr-10 text-sm text-gray-900 border border-white/30 rounded-xl bg-white/80 backdrop-blur-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg hover:bg-white/90"
-            placeholder="Search for people..."
+            placeholder="Search for people"
             value={searchQuery}
             onChange={handleInputChange}
             onFocus={() => setShowResults(true)}
@@ -112,7 +113,11 @@ const SearchBar = ({ people, onSelectPerson }) => {
                 onClick={() => handleSelectPerson(person)}
               >
                 <img
-                  src={getAvatarUrl(person.first_name, person.last_name, person.profile_picture_url)}
+                  src={getAvatarUrl(
+                    person.first_name,
+                    person.last_name,
+                    person.profile_picture_url
+                  )}
                   alt={`${person.first_name} ${person.last_name}`}
                   className="w-10 h-10 rounded-full object-cover"
                 />
