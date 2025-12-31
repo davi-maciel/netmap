@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Network Map",
-  description: "Map visualization of your network.",
+  title: "NetMap",
+  description: "Visualize your personal network on an interactive world map.",
 };
 
 export default function RootLayout({ children }) {
