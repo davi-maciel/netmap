@@ -3,7 +3,7 @@ import "./globals.css";
 export const metadata = {
   title: "NetMap",
   description: "Visualize your personal network on an interactive world map.",
-  metadataBase: new URL('https://netmap.vercel.app'),
+  metadataBase: new URL("https://netmap-io.vercel.app/"),
   openGraph: {
     title: "NetMap",
     description: "Visualize your personal network on an interactive world map.",
